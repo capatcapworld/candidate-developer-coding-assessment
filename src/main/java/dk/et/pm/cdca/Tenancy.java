@@ -1,0 +1,23 @@
+package dk.et.pm.cdca;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
+import java.util.UUID;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Accessors(chain = true)
+@Entity
+public class Tenancy {
+
+    @Id
+    private UUID id;
+    private String name;
+
+}
