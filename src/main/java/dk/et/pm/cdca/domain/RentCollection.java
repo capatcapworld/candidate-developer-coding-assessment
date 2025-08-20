@@ -1,4 +1,4 @@
-package dk.et.pm.cdca;
+package dk.et.pm.cdca.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

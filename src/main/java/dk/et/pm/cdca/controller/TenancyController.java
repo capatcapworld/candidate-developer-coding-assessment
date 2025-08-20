@@ -1,5 +1,7 @@
-package dk.et.pm.cdca;
+package dk.et.pm.cdca.controller;
 
+import dk.et.pm.cdca.domain.Tenancy;
+import dk.et.pm.cdca.service.TenancyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

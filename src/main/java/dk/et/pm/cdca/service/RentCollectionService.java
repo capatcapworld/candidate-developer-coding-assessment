@@ -1,5 +1,7 @@
-package dk.et.pm.cdca;
+package dk.et.pm.cdca.service;
 
+import dk.et.pm.cdca.domain.RentCollection;
+import dk.et.pm.cdca.repository.RentCollectionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

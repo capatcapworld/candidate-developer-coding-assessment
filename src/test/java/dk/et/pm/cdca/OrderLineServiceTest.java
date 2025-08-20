@@ -1,5 +1,11 @@
 package dk.et.pm.cdca;
 
+import dk.et.pm.cdca.domain.OrderLine;
+import dk.et.pm.cdca.domain.RentCollection;
+import dk.et.pm.cdca.domain.Tenancy;
+import dk.et.pm.cdca.repository.OrderLineRepository;
+import dk.et.pm.cdca.repository.RentCollectionRepository;
+import dk.et.pm.cdca.service.OrderLineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import static org.mockito.Mockito.*;
 
@@ -75,16 +82,28 @@ class OrderLineServiceTest {
         return new OrderLine(UUID.fromString(orderLineId), UUID.fromString(rentCollectionId), name, new BigDecimal(amount), LocalDate.parse(bookingDate), booked);
     }
 
+
     @BeforeEach
     public void beforeEach() {
-        when(rentCollectionRepository.findAll()).thenReturn(rentCollections);
         when(orderLineRepository.findAll()).thenReturn(orderLines);
+        when(rentCollectionRepository.findAllByTenancyId(UUID.fromString("10000000-0000-8000-8000-000000000000"))).thenReturn(
+                rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(UUID.fromString("10000000-0000-8000-8000-000000000000"))).toList());
+        when(rentCollectionRepository.findAllByTenancyId(UUID.fromString("20000000-0000-8000-8000-000000000000"))).thenReturn(
+                rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(UUID.fromString("20000000-0000-8000-8000-000000000000"))).toList());
+        when(rentCollectionRepository.findAllByTenancyId(UUID.fromString("30000000-0000-8000-8000-000000000000"))).thenReturn(
+                rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(UUID.fromString("30000000-0000-8000-8000-000000000000"))).toList());
+        when(rentCollectionRepository.findAllByTenancyId(UUID.fromString("40000000-0000-8000-8000-000000000000"))).thenReturn(
+                rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(UUID.fromString("40000000-0000-8000-8000-000000000000"))).toList());
     }
 
     @Test
     public void bookAllOrderLinesForTenancyTest() {
-        orderLineService.bookAllOrderLinesForTenancy(null);
-        verify(orderLineService, times(1)).bookOrderLinesOnAccountingSystem(any());
+        orderLineService.bookAllOrderLinesForTenancy(UUID.fromString("10000000-0000-8000-8000-000000000000"));
+        orderLineService.bookAllOrderLinesForTenancy(UUID.fromString("20000000-0000-8000-8000-000000000000"));
+        orderLineService.bookAllOrderLinesForTenancy(UUID.fromString("30000000-0000-8000-8000-000000000000"));
+        orderLineService.bookAllOrderLinesForTenancy(UUID.fromString("40000000-0000-8000-8000-000000000000"));
+        verify(orderLineService, times(4)).bookOrderLinesOnAccountingSystem(any());
+        verify(orderLineRepository, times(6)).save(any());
     }
 
 }

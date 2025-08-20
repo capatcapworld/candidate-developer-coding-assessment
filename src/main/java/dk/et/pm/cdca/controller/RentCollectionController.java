@@ -1,5 +1,7 @@
-package dk.et.pm.cdca;
+package dk.et.pm.cdca.controller;
 
+import dk.et.pm.cdca.domain.RentCollection;
+import dk.et.pm.cdca.service.RentCollectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
