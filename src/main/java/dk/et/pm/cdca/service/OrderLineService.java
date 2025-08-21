@@ -1,7 +1,6 @@
 package dk.et.pm.cdca.service;
 
 import dk.et.pm.cdca.domain.OrderLine;
-import dk.et.pm.cdca.domain.RentCollection;
 import dk.et.pm.cdca.repository.RentCollectionRepository;
 import dk.et.pm.cdca.repository.OrderLineRepository;
 import jakarta.transaction.Transactional;
@@ -30,6 +29,8 @@ public class OrderLineService {
 
     /**
      * Books all order lines for a tenancy which have not already been booked, and have a booking date before today.
+     *
+     * The initial version only had  filter(line -> line.getRentCollectionId() == elem.getId()) where '==' compares on addresses.
      */
     @Transactional
     public void bookAllOrderLinesForTenancy(UUID tenancyId) {
