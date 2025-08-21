@@ -18,7 +18,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import static org.mockito.Mockito.*;
 
@@ -102,7 +101,7 @@ class OrderLineServiceTest {
         orderLineService.bookAllOrderLinesForTenancy(UUID.fromString("20000000-0000-8000-8000-000000000000"));
         orderLineService.bookAllOrderLinesForTenancy(UUID.fromString("30000000-0000-8000-8000-000000000000"));
         orderLineService.bookAllOrderLinesForTenancy(UUID.fromString("40000000-0000-8000-8000-000000000000"));
-        verify(orderLineService, times(4)).bookOrderLinesOnAccountingSystem(any());
+        verify(orderLineService, times(3)).bookOrderLinesOnAccountingSystem(any());
         verify(orderLineRepository, times(6)).save(any());
     }
 

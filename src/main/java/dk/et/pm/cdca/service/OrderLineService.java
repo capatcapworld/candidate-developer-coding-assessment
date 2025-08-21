@@ -4,6 +4,7 @@ import dk.et.pm.cdca.domain.OrderLine;
 import dk.et.pm.cdca.domain.RentCollection;
 import dk.et.pm.cdca.repository.RentCollectionRepository;
 import dk.et.pm.cdca.repository.OrderLineRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +31,11 @@ public class OrderLineService {
     /**
      * Books all order lines for a tenancy which have not already been booked, and have a booking date before today.
      */
+    @Transactional
     public void bookAllOrderLinesForTenancy(UUID tenancyId) {
         var linesToBook = new ArrayList<OrderLine>();
         var rents = rentCollectionRepository.findAllByTenancyId(tenancyId);
-        LocalDate today = LocalDate.now();
+        var today = LocalDate.now();
 
         for (var elem : rents) {
             var someLines = orderLineRepository.findAll().stream() // orderLineRepository.findAll() could be replaced with orderLineRepository.findAllByRentCollectionId() and then omit it in the filter
@@ -45,13 +47,16 @@ public class OrderLineService {
         }
 
         try {
-            bookOrderLinesOnAccountingSystem(linesToBook);
+            if (!linesToBook.isEmpty()) {
+                bookOrderLinesOnAccountingSystem(linesToBook);
+            }
             for (OrderLine bookedLine : linesToBook) {
                 bookedLine.setBooked(true);
                 orderLineRepository.save(bookedLine);
             }
         } catch (Exception e) {
             log.error("Some error occured during booking for tenancyId: {}", tenancyId, e);
+            throw e;
         }
     }
 
