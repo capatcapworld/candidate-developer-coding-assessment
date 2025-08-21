@@ -3,9 +3,9 @@ export function booleanFormatter(boolean) {
 }
 
 export function dateFormatter(date) {
-	return new Intl.DateTimeFormat().format(new Date(date));
+	return new Intl.DateTimeFormat("da-DK").format(new Date(date));
 }
 
 export function numberFormatter(number) {
-	return new Intl.NumberFormat().format(number);
+	return new Intl.NumberFormat("da-DK").format(number);
 }
