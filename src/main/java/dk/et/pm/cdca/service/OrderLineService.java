@@ -38,16 +38,16 @@ public class OrderLineService {
         var rents = rentCollectionRepository.findAllByTenancyId(tenancyId);
         var today = LocalDate.now();
 
-        for (var elem : rents) {
-            var someLines = orderLineRepository.findAll().stream() // orderLineRepository.findAll() could be replaced with orderLineRepository.findAllByRentCollectionId() and then omit it in the filter
-                                               .filter(line -> line.getRentCollectionId().equals(elem.getId())
-                                               && !line.isBooked()
-                                               && line.getBookingDate().isBefore(today))
-                                               .toList();
-            linesToBook.addAll(someLines);
-        }
-
         try {
+            for (var elem : rents) {
+                var someLines = orderLineRepository.findAll().stream() // orderLineRepository.findAll() could be replaced with orderLineRepository.findAllByRentCollectionId() and then omit it in the filter
+                        .filter(line -> line.getRentCollectionId().equals(elem.getId())
+                                && !line.isBooked()
+                                && line.getBookingDate().isBefore(today))
+                        .toList();
+                linesToBook.addAll(someLines);
+            }
+
             if (!linesToBook.isEmpty()) {
                 bookOrderLinesOnAccountingSystem(linesToBook);
             }
@@ -56,7 +56,7 @@ public class OrderLineService {
                 orderLineRepository.save(bookedLine);
             }
         } catch (Exception e) {
-            log.error("Some error occured during booking for tenancyId: {}", tenancyId, e);
+            log.error("Some error occurred during booking for tenancyId: {}", tenancyId, e);
             throw e;
         }
     }

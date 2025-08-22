@@ -22,12 +22,17 @@
     // Call Spring Boot PUT endpoint
     const bookOrderLines = async () => {
         try {
-            const response = await fetch(`/api/order-lines?tenancyId=${props.tenancyId}`, { method: 'PUT' })
-            if (!response.ok) throw new Error(`Failed: ${response.status}`)
-            ElMessageBox.alert('Order lines booked successfully', 'Success', { confirmButtonText: 'OK'});
+            const response = await fetch(`/api/order-lines?tenancyId=${props.tenancyId}`, { method: 'PUT' });
+            const message = await response.text();
+            console.log(message);
+            if (response.ok) {
+               ElMessageBox.alert(message, 'Success', { confirmButtonText: 'OK'});
+            } else {
+               throw new Error(`Failed to book order lines for tenancy: ${props.tenancyId} -  Status: ${response.status}`);
+            }
         } catch (err) {
             console.error(err);
-            ElMessageBox.alert('Failed to book order lines', 'Error', { confirmButtonText: 'OK'});
+            ElMessageBox.alert(err, 'Error', { confirmButtonText: 'OK'});
         }
     }
 </script>

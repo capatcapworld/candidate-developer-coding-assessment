@@ -5,6 +5,7 @@ import dk.et.pm.cdca.service.OrderLineService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,9 +26,10 @@ public class OrderLineController {
     }
 
     @PutMapping
-    public void bookAllOrderLinesForTenancy(@RequestParam UUID tenancyId) {
+    public ResponseEntity<String> bookAllOrderLinesForTenancy(@RequestParam UUID tenancyId) {
         log.info("bookAllOrderLinesForTenancy called with tenancyId: " + tenancyId);
         orderLineService.bookAllOrderLinesForTenancy(tenancyId);
+        return ResponseEntity.ok("All available order lines booked successfully for tenancyId: " + tenancyId);
     }
 
 }
