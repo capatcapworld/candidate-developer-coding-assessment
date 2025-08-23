@@ -35,10 +35,10 @@ public class OrderLineService {
     @Transactional
     public void bookAllOrderLinesForTenancy(UUID tenancyId) {
         var linesToBook = new ArrayList<OrderLine>();
-        var rents = rentCollectionRepository.findAllByTenancyId(tenancyId);
         var today = LocalDate.now();
 
         try {
+            var rents = rentCollectionRepository.findAllByTenancyId(tenancyId);
             for (var elem : rents) {
                 var someLines = orderLineRepository.findAll().stream() // orderLineRepository.findAll() could be replaced with orderLineRepository.findAllByRentCollectionId() and then omit it in the filter
                         .filter(line -> line.getRentCollectionId().equals(elem.getId())
@@ -48,12 +48,13 @@ public class OrderLineService {
                 linesToBook.addAll(someLines);
             }
 
-            if (!linesToBook.isEmpty()) {
-                bookOrderLinesOnAccountingSystem(linesToBook);
-            }
             for (OrderLine bookedLine : linesToBook) {
                 bookedLine.setBooked(true);
                 orderLineRepository.save(bookedLine);
+            }
+
+            if (!linesToBook.isEmpty()) {
+                bookOrderLinesOnAccountingSystem(linesToBook);
             }
         } catch (Exception e) {
             log.error("Some error occurred during booking for tenancyId: {}", tenancyId, e);
