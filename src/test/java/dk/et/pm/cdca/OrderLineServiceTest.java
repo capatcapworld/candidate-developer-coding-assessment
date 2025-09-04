@@ -14,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -103,12 +102,25 @@ class OrderLineServiceTest {
     }
 
     @Test
-    public void bookAllOrderLinesForTenancyTest() {
-        when(orderLineRepository.findAll()).thenReturn(orderLines);
+    public void bookAllOrderLinesForAllTenancyTest() {
         when(rentCollectionRepository.findAllByTenancyId(tenancyIdGitteUUID)).thenReturn(rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(tenancyIdGitteUUID)).toList());
         when(rentCollectionRepository.findAllByTenancyId(tenancyIdJonUUID)).thenReturn(rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(tenancyIdJonUUID)).toList());
         when(rentCollectionRepository.findAllByTenancyId(tenancyIdMarcUUID)).thenReturn(rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(tenancyIdMarcUUID)).toList());
         when(rentCollectionRepository.findAllByTenancyId(tenancyIdMarcusUUID)).thenReturn(rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(tenancyIdMarcusUUID)).toList());
+
+
+        when(orderLineRepository.findAllByRentCollectionIdAndBookedAndBookingDateBefore(any(UUID.class), anyBoolean(), any(LocalDate.class)))
+                .thenAnswer(invocation -> {
+                    UUID rentCollectionId = invocation.getArgument(0);
+                    boolean booked        = invocation.getArgument(1);
+                    LocalDate bookingDate = invocation.getArgument(2);
+                    return orderLines.stream()
+                            .filter(line -> line.getRentCollectionId().equals(rentCollectionId)
+                                    && line.isBooked() == booked
+                                    && line.getBookingDate().isBefore(bookingDate))
+                            .toList();
+                });
+
 
         orderLineService.bookAllOrderLinesForTenancy(tenancyIdGitteUUID);
         orderLineService.bookAllOrderLinesForTenancy(tenancyIdJonUUID);
@@ -118,6 +130,88 @@ class OrderLineServiceTest {
         verify(orderLineService, times(3)).bookOrderLinesOnAccountingSystem(any());
         verify(orderLineRepository, times(6)).save(any());
     }
+
+
+    @Test
+    public void bookAllOrderLinesForGitteTenancyTest() {
+        when(rentCollectionRepository.findAllByTenancyId(tenancyIdGitteUUID)).thenReturn(rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(tenancyIdGitteUUID)).toList());
+
+        when(orderLineRepository.findAllByRentCollectionIdAndBookedAndBookingDateBefore(any(UUID.class), anyBoolean(), any(LocalDate.class)))
+                .thenAnswer(invocation -> {
+                    UUID rentCollectionId = invocation.getArgument(0);
+                    boolean booked        = invocation.getArgument(1);
+                    LocalDate bookingDate = invocation.getArgument(2);
+                    return orderLines.stream()
+                            .filter(line -> line.getRentCollectionId().equals(rentCollectionId)
+                                    && line.isBooked() == booked
+                                    && line.getBookingDate().isBefore(bookingDate))
+                            .toList();
+                });
+
+
+        orderLineService.bookAllOrderLinesForTenancy(tenancyIdGitteUUID);
+
+        verify(orderLineRepository, times(3)).save(any());
+        verify(orderLineService, times(1)).bookOrderLinesOnAccountingSystem(any());
+    }
+
+
+    @Test
+    public void bookAllOrderLinesForJonTenancyTest() {
+        when(rentCollectionRepository.findAllByTenancyId(tenancyIdJonUUID)).thenReturn(rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(tenancyIdJonUUID)).toList());
+
+        when(orderLineRepository.findAllByRentCollectionIdAndBookedAndBookingDateBefore(any(UUID.class), anyBoolean(), any(LocalDate.class)))
+                .thenAnswer(invocation -> {
+                    UUID rentCollectionId = invocation.getArgument(0);
+                    boolean booked        = invocation.getArgument(1);
+                    LocalDate bookingDate = invocation.getArgument(2);
+                    return orderLines.stream()
+                            .filter(line -> line.getRentCollectionId().equals(rentCollectionId)
+                                    && line.isBooked() == booked
+                                    && line.getBookingDate().isBefore(bookingDate))
+                            .toList();
+                });
+
+        orderLineService.bookAllOrderLinesForTenancy(tenancyIdJonUUID);
+
+        verify(orderLineRepository, times(2)).save(any());
+        verify(orderLineService, times(1)).bookOrderLinesOnAccountingSystem(any());
+    }
+
+
+    @Test
+    public void bookAllOrderLinesForMarcTenancyTest() {
+        when(rentCollectionRepository.findAllByTenancyId(tenancyIdMarcUUID)).thenReturn(rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(tenancyIdMarcUUID)).toList());
+
+        when(orderLineRepository.findAllByRentCollectionIdAndBookedAndBookingDateBefore(any(UUID.class), anyBoolean(), any(LocalDate.class)))
+                .thenAnswer(invocation -> {
+                    UUID rentCollectionId = invocation.getArgument(0);
+                    boolean booked        = invocation.getArgument(1);
+                    LocalDate bookingDate = invocation.getArgument(2);
+                    return orderLines.stream()
+                            .filter(line -> line.getRentCollectionId().equals(rentCollectionId)
+                                    && line.isBooked() == booked
+                                    && line.getBookingDate().isBefore(bookingDate))
+                            .toList();
+                });
+
+        orderLineService.bookAllOrderLinesForTenancy(tenancyIdMarcUUID);
+
+        verify(orderLineRepository, times(1)).save(any());
+        verify(orderLineService, times(1)).bookOrderLinesOnAccountingSystem(any());
+    }
+
+
+    @Test
+    public void bookAllOrderLinesForMarcusTenancyTest() {
+        when(rentCollectionRepository.findAllByTenancyId(tenancyIdMarcusUUID)).thenReturn(rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(tenancyIdMarcusUUID)).toList());
+
+        orderLineService.bookAllOrderLinesForTenancy(tenancyIdMarcusUUID);
+
+        verify(orderLineRepository, never()).save(any());
+        verify(orderLineService, never()).bookOrderLinesOnAccountingSystem(any());
+    }
+
 
     @Test
     public void shouldNotBookOrSaveWhenRentCollectionRepositoryThrowsException() {
@@ -133,7 +227,7 @@ class OrderLineServiceTest {
     @Test
     public void shouldNotBookOrSaveWhenOrderLineRepositoryThrowsException() {
         when(rentCollectionRepository.findAllByTenancyId(tenancyIdGitteUUID)).thenReturn(rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(tenancyIdGitteUUID)).toList());
-        when(orderLineRepository.findAll()).thenThrow(new ConstraintViolationException("Database Exception", new SQLException("SQL Exception"),"ConstraintName"));
+        when(orderLineRepository.findAllByRentCollectionIdAndBookedAndBookingDateBefore(any(UUID.class), anyBoolean(), any(LocalDate.class))).thenThrow(new ConstraintViolationException("Database Exception", new SQLException("SQL Exception"),"ConstraintName"));
 
         // Assert that the ConstraintViolationException is thrown
         assertThrows(ConstraintViolationException.class, () -> orderLineService.bookAllOrderLinesForTenancy(tenancyIdGitteUUID));
@@ -145,9 +239,22 @@ class OrderLineServiceTest {
 
     @Test
     public void shouldNotBookOrSaveWhenOrderLineRepositorySaveThrowsException() {
-        when(orderLineRepository.findAll()).thenReturn(orderLines);
         when(rentCollectionRepository.findAllByTenancyId(tenancyIdGitteUUID)).thenReturn(rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(tenancyIdGitteUUID)).toList());
         when(orderLineRepository.save(any())).thenThrow(new DataIntegrityViolationException("DataIntegrity Exception"));
+
+        when(rentCollectionRepository.findAllByTenancyId(tenancyIdGitteUUID)).thenReturn(rentCollections.stream().filter((rent) -> rent.getTenancyId().equals(tenancyIdGitteUUID)).toList());
+
+        when(orderLineRepository.findAllByRentCollectionIdAndBookedAndBookingDateBefore(any(UUID.class), anyBoolean(), any(LocalDate.class)))
+                .thenAnswer(invocation -> {
+                    UUID rentCollectionId = invocation.getArgument(0);
+                    boolean booked        = invocation.getArgument(1);
+                    LocalDate bookingDate = invocation.getArgument(2);
+                    return orderLines.stream()
+                            .filter(line -> line.getRentCollectionId().equals(rentCollectionId)
+                                    && line.isBooked() == booked
+                                    && line.getBookingDate().isBefore(bookingDate))
+                            .toList();
+                });
 
         // Assert that the ConstraintViolationException is thrown
         assertThrows(DataIntegrityViolationException.class, () -> orderLineService.bookAllOrderLinesForTenancy(tenancyIdGitteUUID));

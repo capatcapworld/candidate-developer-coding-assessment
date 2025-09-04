@@ -1,5 +1,5 @@
 {
-	"name": "@estatetool/candidate-developer-coding-assessment",
+	"name": "@capworld/candidate-developer-coding-assessment",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -8,8 +8,8 @@
 		"preview": "vite preview"
 	},
 	"engines": {
-		"node": "22.18.0",
-		"npm": "10.9.3"
+		"node": "22.14.0",
+		"npm": "10.9.2"
 	},
 	"dependencies": {
 		"element-plus": "^2.10.7",

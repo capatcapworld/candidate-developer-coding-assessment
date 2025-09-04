@@ -31,6 +31,7 @@ public class OrderLineService {
      * Books all order lines for a tenancy which have not already been booked, and have a booking date before today.
      *
      * The initial version only had  filter(line -> line.getRentCollectionId() == elem.getId()) where '==' compares on addresses.
+     * The filtering is removed and replaced with sql.
      */
     @Transactional
     public void bookAllOrderLinesForTenancy(UUID tenancyId) {
@@ -40,12 +41,7 @@ public class OrderLineService {
         try {
             var rents = rentCollectionRepository.findAllByTenancyId(tenancyId);
             for (var elem : rents) {
-                var someLines = orderLineRepository.findAll().stream() // orderLineRepository.findAll() could be replaced with orderLineRepository.findAllByRentCollectionId() and then omit it in the filter
-                        .filter(line -> line.getRentCollectionId().equals(elem.getId())
-                                && !line.isBooked()
-                                && line.getBookingDate().isBefore(today))
-                        .toList();
-                linesToBook.addAll(someLines);
+                linesToBook.addAll(orderLineRepository.findAllByRentCollectionIdAndBookedAndBookingDateBefore(elem.getId(), false, today));
             }
 
             for (OrderLine bookedLine : linesToBook) {
